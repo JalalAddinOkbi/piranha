@@ -1,0 +1,33 @@
+# Dart Edges for Boolean and Code Simplification
+
+# First, apply boolean simplifications like removing `if (true)` and `if (false)`
+[[edges]]
+from = "Simplify `true` condition"
+to = ["Simplify `false` condition", "Simplify negation of `true`", "Simplify negation of `false`"]
+
+[[edges]]
+from = "Simplify `false` condition"
+to = ["Simplify ternary `condition ? true : false`"]
+
+[[edges]]
+from = "Simplify negation of `true`"
+to = ["Simplify negation of `false`"]
+
+[[edges]]
+from = "Simplify negation of `false`"
+to = ["Simplify ternary `condition ? true : false`"]
+
+# Once boolean logic is simplified, apply ternary simplifications
+[[edges]]
+from = "Simplify ternary `condition ? true : false`"
+to = ["Remove redundant variable assignments", "Remove unused local variables"]
+
+# After simplifying boolean logic and ternaries, clean up redundant and unused code
+[[edges]]
+from = "Remove redundant variable assignments"
+to = ["Remove unused local variables"]
+
+# Finally, remove unused local variables after all other code transformations
+[[edges]]
+from = "Remove unused local variables"
+to = []

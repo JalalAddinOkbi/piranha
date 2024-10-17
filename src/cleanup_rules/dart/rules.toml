@@ -1,0 +1,102 @@
+# Dart Rules for Boolean and Code Simplification with Comments
+
+[[rules]]
+name = "Simplify `true` condition"
+query = """
+(ifStatement
+  condition: (booleanLiteral) @literal (#eq? @literal "true"))
+"""
+replace = """
+// Before: if (true) { ... }
+// Simplified: Removed unnecessary `if (true)` condition
+"""
+
+[[rules]]
+name = "Simplify `false` condition"
+query = """
+(ifStatement
+  condition: (booleanLiteral) @literal (#eq? @literal "false"))
+"""
+replace = """
+// Before: if (false) { ... }
+// Simplified: Removed block for `if (false)`
+"""
+
+[[rules]]
+name = "Simplify negation of `true`"
+query = """
+(ifStatement
+  condition: (unaryExpression
+    operator: "!"
+    argument: (booleanLiteral) @literal (#eq? @literal "true"))
+)
+"""
+replace = """
+// Before: if (!true) { ... }
+// After: if (false) { ... }
+if (false) {}
+"""
+
+[[rules]]
+name = "Simplify negation of `false`"
+query = """
+(ifStatement
+  condition: (unaryExpression
+    operator: "!"
+    argument: (booleanLiteral) @literal (#eq? @literal "false"))
+)
+"""
+replace = """
+// Before: if (!false) { ... }
+// After: if (true) { ... }
+if (true) {}
+"""
+
+[[rules]]
+name = "Simplify ternary `condition ? true : false`"
+query = """
+(conditionalExpression
+  condition: (_) @condition
+  thenExpression: (booleanLiteral) @then (#eq? @then "true")
+  elseExpression: (booleanLiteral) @else (#eq? @else "false"))
+"""
+replace = """
+// Before: condition ? true : false
+// After: condition
+@condition
+"""
+
+[[rules]]
+name = "Remove redundant variable assignments"
+query = """
+(variableDeclaration
+  (identifier) @name
+  value: (identifier) @value (#eq? @name @value))
+"""
+replace = """
+// Before: var x = x;
+// Simplified: removed redundant assignment
+"""
+
+[[rules]]
+name = "Remove unused local variables"
+query = """
+(variableDeclaration
+  name: (_) @name
+  (#not-eq? @name "used"))
+"""
+replace = """
+// Simplified: removed unused variable
+"""
+
+[[rules]]
+name = "Remove stale feature flag (Dart)"
+query = """
+(ifStatement
+  condition: (identifier) @flag (#eq? @flag "featureEnabled")
+)
+"""
+replace = """
+// Before: if (featureEnabled) { ... }
+// Simplified: removed unnecessary `if (true)` block
+"""

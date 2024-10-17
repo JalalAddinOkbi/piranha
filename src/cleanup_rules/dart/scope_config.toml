@@ -1,0 +1,71 @@
+# Scope configuration for Dart
+
+# This defines the root scope (the whole file)
+[[scopes]]
+name = "File"
+query = """
+(source_file) @root
+"""
+is_root = true
+
+# Scope for top-level declarations (functions, classes, etc.)
+[[scopes]]
+name = "TopLevelDeclaration"
+query = """
+(declaration) @declaration
+"""
+is_root = false
+
+# Scope for Dart classes
+[[scopes]]
+name = "Class"
+query = """
+(class_declaration
+  name: (identifier) @class_name
+) @class
+"""
+is_root = false
+
+# Scope for methods inside classes
+[[scopes]]
+name = "Method"
+query = """
+(method_declaration
+  name: (identifier) @method_name
+) @method
+"""
+is_root = false
+
+# Scope for top-level functions
+[[scopes]]
+name = "Function"
+query = """
+(function_declaration
+  name: (identifier) @function_name
+) @function
+"""
+is_root = false
+
+# Scope for blocks (e.g., inside a method or function)
+[[scopes]]
+name = "Block"
+query = """
+(block) @block
+"""
+is_root = false
+
+# Scope for if-statements (conditionals)
+[[scopes]]
+name = "IfStatement"
+query = """
+(if_statement) @if_statement
+"""
+is_root = false
+
+# Scope for variable declarations
+[[scopes]]
+name = "VariableDeclaration"
+query = """
+(variable_declaration) @variable_declaration
+"""
+is_root = false

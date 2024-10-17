@@ -70,6 +70,7 @@ pub enum SupportedLanguage {
   Scala,
   Ruby,
   Yaml,
+  Dart,
 }
 
 impl PiranhaLanguage {
@@ -295,6 +296,15 @@ impl std::str::FromStr for PiranhaLanguage {
         extension: language.to_string(),
         supported_language: SupportedLanguage::Yaml,
         language: tree_sitter_yaml::language(),
+        rules: None,
+        edges: None,
+        scopes: vec![],
+        comment_nodes: vec![],
+      }),
+      Dart => Ok(PiranhaLanguage {
+        extension: "dart".to_string(),
+        supported_language: SupportedLanguage::Dart,
+        language: tree_sitter_dart::language(),
         rules: None,
         edges: None,
         scopes: vec![],
