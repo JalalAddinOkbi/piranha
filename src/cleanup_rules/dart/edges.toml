@@ -1,33 +1,23 @@
-# Dart Edges for Boolean and Code Simplification
+# Dart Feature Flag Cleanup Edges (combined)
 
-# First, apply boolean simplifications like removing `if (true)` and `if (false)`
+# First, remove stale feature flags that are always true or false
 [[edges]]
-from = "Simplify `true` condition"
-to = ["Simplify `false` condition", "Simplify negation of `true`", "Simplify negation of `false`"]
-
-[[edges]]
-from = "Simplify `false` condition"
-to = ["Simplify ternary `condition ? true : false`"]
-
-[[edges]]
-from = "Simplify negation of `true`"
-to = ["Simplify negation of `false`"]
+from = "remove_stale_feature_flag_always_true"
+to = [
+  "simplify_feature_flag_ternary_operator",
+  "remove_unnecessary_else_block_for_feature_enabled",
+]
 
 [[edges]]
-from = "Simplify negation of `false`"
-to = ["Simplify ternary `condition ? true : false`"]
+from = "remove_stale_feature_flag_always_false"
+to = ["simplify_feature_flag_ternary_operator"]
 
-# Once boolean logic is simplified, apply ternary simplifications
+# Apply ternary simplifications after cleaning up feature flags
 [[edges]]
-from = "Simplify ternary `condition ? true : false`"
-to = ["Remove redundant variable assignments", "Remove unused local variables"]
+from = "simplify_feature_flag_ternary_operator"
+to = ["remove_unnecessary_else_block_for_feature_enabled"]
 
-# After simplifying boolean logic and ternaries, clean up redundant and unused code
+# Remove the else block after simplifying conditions
 [[edges]]
-from = "Remove redundant variable assignments"
-to = ["Remove unused local variables"]
-
-# Finally, remove unused local variables after all other code transformations
-[[edges]]
-from = "Remove unused local variables"
+from = "remove_unnecessary_else_block_for_feature_enabled"
 to = []

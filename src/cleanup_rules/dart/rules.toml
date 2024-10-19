@@ -1,102 +1,71 @@
-# Dart Rules for Boolean and Code Simplification with Comments
+# Dart Feature Flag Cleanup Rules (combined)
 
+# 1. Remove stale feature flag conditions if the flag is always `true`
 [[rules]]
-name = "Simplify `true` condition"
+name = "remove_stale_feature_flag_always_true"
 query = """
-(ifStatement
-  condition: (booleanLiteral) @literal (#eq? @literal "true"))
-"""
-replace = """
-// Before: if (true) { ... }
-// Simplified: Removed unnecessary `if (true)` condition
-"""
-
-[[rules]]
-name = "Simplify `false` condition"
-query = """
-(ifStatement
-  condition: (booleanLiteral) @literal (#eq? @literal "false"))
-"""
-replace = """
-// Before: if (false) { ... }
-// Simplified: Removed block for `if (false)`
-"""
-
-[[rules]]
-name = "Simplify negation of `true`"
-query = """
-(ifStatement
-  condition: (unaryExpression
-    operator: "!"
-    argument: (booleanLiteral) @literal (#eq? @literal "true"))
+(if_statement
+  condition: (parenthesized_expression
+    (identifier) @flag (#eq? @flag "{{flag_name}}"))
 )
 """
 replace = """
-// Before: if (!true) { ... }
-// After: if (false) { ... }
-if (false) {}
+{% if flag_value == "true" %}
+  // Simplified: removed unnecessary `if (true)` block
+  @block
+{% endif %}
 """
 
+# 2. Remove stale feature flag conditions if the flag is always `false`
 [[rules]]
-name = "Simplify negation of `false`"
+name = "remove_stale_feature_flag_always_false"
 query = """
-(ifStatement
-  condition: (unaryExpression
-    operator: "!"
-    argument: (booleanLiteral) @literal (#eq? @literal "false"))
+(if_statement
+  condition: (parenthesized_expression
+    (identifier) @flag (#eq? @flag "{{flag_name}}"))
 )
 """
 replace = """
-// Before: if (!false) { ... }
-// After: if (true) { ... }
-if (true) {}
+{% if flag_value == "false" %}
+  // Simplified: removed block for `if (false)`
+{% endif %}
 """
 
+# 3. Simplify feature flag ternary operator
 [[rules]]
-name = "Simplify ternary `condition ? true : false`"
+name = "simplify_feature_flag_ternary_operator"
 query = """
-(conditionalExpression
-  condition: (_) @condition
-  thenExpression: (booleanLiteral) @then (#eq? @then "true")
-  elseExpression: (booleanLiteral) @else (#eq? @else "false"))
-"""
-replace = """
-// Before: condition ? true : false
-// After: condition
-@condition
-"""
-
-[[rules]]
-name = "Remove redundant variable assignments"
-query = """
-(variableDeclaration
-  (identifier) @name
-  value: (identifier) @value (#eq? @name @value))
-"""
-replace = """
-// Before: var x = x;
-// Simplified: removed redundant assignment
-"""
-
-[[rules]]
-name = "Remove unused local variables"
-query = """
-(variableDeclaration
-  name: (_) @name
-  (#not-eq? @name "used"))
-"""
-replace = """
-// Simplified: removed unused variable
-"""
-
-[[rules]]
-name = "Remove stale feature flag (Dart)"
-query = """
-(ifStatement
-  condition: (identifier) @flag (#eq? @flag "featureEnabled")
+(assignment_expression
+  right: (conditional_expression
+    condition: (parenthesized_expression
+      (identifier) @flag (#eq? @flag "{{flag_name}}"))
+    consequence: (_) @then
+    alternative: (_) @else
+  )
 )
 """
 replace = """
-// Before: if (featureEnabled) { ... }
-// Simplified: removed unnecessary `if (true)` block
+{% if flag_value == "true" %}
+  // Simplified: replaced ternary with `then` expression
+  @then
+{% elif flag_value == "false" %}
+  @else
+{% endif %}
+"""
+
+# 4. Remove unnecessary else block for true feature flag
+[[rules]]
+name = "remove_unnecessary_else_block_for_feature_enabled"
+query = """
+(if_statement
+  condition: (parenthesized_expression
+    (identifier) @flag (#eq? @flag "{{flag_name}}"))
+  alternative: (block) @else_block
+)
+"""
+replace = """
+{% if flag_value == "true" %}
+  // Simplified: removed unnecessary else block
+  @block
+{% endif %}
 """
