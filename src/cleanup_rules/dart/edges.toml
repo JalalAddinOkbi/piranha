@@ -1,23 +1,42 @@
-# Dart Feature Flag Cleanup Edges (combined)
+# Updated Edges for Dart Feature Flag Cleanup with Scopes
 
-# First, remove stale feature flags that are always true or false
+# Remove unused enum entries, then remove empty enum declarations
+[[edges]]
+from = "remove_unused_enum_entry"
+to = ["remove_empty_enum_declaration"]
+scope = "enum"
+
+# Remove stale feature flags, then simplify ternary operators
 [[edges]]
 from = "remove_stale_feature_flag_always_true"
-to = [
-  "simplify_feature_flag_ternary_operator",
-  "remove_unnecessary_else_block_for_feature_enabled",
-]
+to = ["simplify_feature_flag_ternary_operator", "remove_unnecessary_else_block_for_feature_enabled"]
+scope = "block"
 
 [[edges]]
 from = "remove_stale_feature_flag_always_false"
 to = ["simplify_feature_flag_ternary_operator"]
+scope = "block"
 
 # Apply ternary simplifications after cleaning up feature flags
 [[edges]]
 from = "simplify_feature_flag_ternary_operator"
 to = ["remove_unnecessary_else_block_for_feature_enabled"]
+scope = "if_statement"
 
 # Remove the else block after simplifying conditions
 [[edges]]
 from = "remove_unnecessary_else_block_for_feature_enabled"
 to = []
+scope = "block"
+
+# Clean up method-level transformations
+[[edges]]
+from = "remove_empty_methods"
+to = ["remove_empty_classes"]
+scope = "method"
+
+# Clean up class-level transformations
+[[edges]]
+from = "remove_empty_classes"
+to = []
+scope = "class"

@@ -22,11 +22,11 @@ use crate::utilities::parse_toml;
 use super::{
   default_configs::{
     default_language, GO, JAVA, JAVA_CS, KOTLIN, KOTLIN_ALIAS, PYTHON, RUBY, SCALA, STRINGS, SWIFT,
-    THRIFT, TSX, TS_SCHEME, TYPESCRIPT, YAML, YAML_ALIAS,
+    THRIFT, TSX, TS_SCHEME, TYPESCRIPT, YAML, YAML_ALIAS, DART,
   },
   outgoing_edges::Edges,
   rule::Rules,
-  scopes::{ScopeConfig, ScopeGenerator},
+  scopes::{ScopeConfig, ScopeGenerator, self},
 };
 
 #[derive(Debug, Clone, Getters, PartialEq)]
@@ -301,15 +301,24 @@ impl std::str::FromStr for PiranhaLanguage {
         scopes: vec![],
         comment_nodes: vec![],
       }),
-      Dart => Ok(PiranhaLanguage {
+      DART => {
+        let rules: Rules = parse_toml(include_str!("../cleanup_rules/dart/rules.toml"));
+        let edges: Edges = parse_toml(include_str!("../cleanup_rules/dart/edges.toml"));
+
+        Ok(PiranhaLanguage {
         extension: "dart".to_string(),
         supported_language: SupportedLanguage::Dart,
         language: tree_sitter_dart::language(),
-        rules: None,
-        edges: None,
-        scopes: vec![],
-        comment_nodes: vec![],
-      }),
+        rules: Some(rules),
+        edges: Some(edges),
+          scopes: parse_toml::<ScopeConfig>(include_str!(
+            "../cleanup_rules/java/scope_config.toml"
+          ))
+          .scopes()
+          .to_vec(),
+          comment_nodes: vec!["line_comment".to_string(), "block_comment".to_string()],
+      })
+      }
       _ => Err("Language not supported"),
     }
   }

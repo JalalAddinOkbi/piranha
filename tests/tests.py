@@ -259,3 +259,35 @@ def _java_toplevel_mdecl_matches_anything(code_snippet: str) -> bool:
             return len(summaries) > 0
         except:
             assert False, f"Java method_declaration as top level node should not raise an error:\n{code_snippet}"
+
+
+def test_dart_remove_if():
+    args = PiranhaArguments(
+        path_to_configurations="cleanup_rules/dart/rules.toml",
+        language="dart",
+        substitutions={
+            "flag_name": "flag",
+            "flag_value": "true",
+        },
+        paths_to_codebase=["test-resources/dart/input/test_input.dart"],
+        dry_run=False,
+    )
+
+    output_summaries = execute_piranha(args)
+
+    assert len(output_summaries) == 2
+    expected_paths = [
+        "test-resources/dart/expected/test_expected.dart",
+    ]
+    assert all([o.path in expected_paths for o in output_summaries])
+    summary: PiranhaOutputSummary
+    for summary in output_summaries:
+        assert _is_readable(str(summary))
+        for rewrite in summary.rewrites:
+            assert _is_readable(str(rewrite)) and _is_readable(str(rewrite.p_match))
+            assert rewrite.matched_rule
+            assert rewrite.p_match.matched_string and rewrite.p_match.matches
+
+    assert is_as_expected(
+        "test-resources/dart/expected/test_expected.dart", output_summaries
+    )

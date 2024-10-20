@@ -15,6 +15,7 @@ replace = """
   @block
 {% endif %}
 """
+holes = ["flag_name", "flag_value"]
 
 # 2. Remove stale feature flag conditions if the flag is always `false`
 [[rules]]
@@ -30,6 +31,7 @@ replace = """
   // Simplified: removed block for `if (false)`
 {% endif %}
 """
+holes = ["flag_name", "flag_value"]
 
 # 3. Simplify feature flag ternary operator
 [[rules]]
@@ -52,6 +54,7 @@ replace = """
   @else
 {% endif %}
 """
+holes = ["flag_name", "flag_value"]
 
 # 4. Remove unnecessary else block for true feature flag
 [[rules]]
@@ -69,3 +72,48 @@ replace = """
   @block
 {% endif %}
 """
+holes = ["flag_name", "flag_value"]
+
+[[rules]]
+name = "remove_unused_enum_entry"
+# Query to find an enum entry
+query = """
+(enum_declaration
+  body: (enum_body
+    (enum_entry) @enum_entry (#eq? @enum_entry "{{flag_name}}")
+  )
+)
+"""
+# Replacement logic to remove the enum entry
+replace = """
+{% if not is_flag_used %}
+  // Removed unused enum entry `{{flag_name}}`
+{% endif %}
+"""
+
+# Conditions for the rule, to check if the enum entry is used elsewhere
+holes = ["flag_name", "is_flag_used"]
+
+[[rules]]
+# Check if the enum entry is used anywhere else in the code
+name = "check_enum_entry_usage"
+query = """
+(identifier) @flag_usage (#eq? @flag_usage "{{flag_name}}")
+"""
+# This will mark the flag as used
+replace = """
+{% set is_flag_used = true %}
+"""
+
+[[rules]]
+name = "remove_empty_enum_declaration"
+# Query to find an enum declaration with an empty body
+query = """
+(enum_declaration
+  body: (enum_body) @empty_body
+    (#eq? @empty_body "{}"))
+"""
+replace = """
+// Removed empty enum declaration
+"""
+

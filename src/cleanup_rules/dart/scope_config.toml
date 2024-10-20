@@ -1,71 +1,57 @@
-# Scope configuration for Dart
+# Dart Scope Configuration
 
-# This defines the root scope (the whole file)
+# Class Scope: Matches class declarations
 [[scopes]]
-name = "File"
-query = """
-(source_file) @root
+name = "class"
+pattern = """
+(class_definition
+  name: (identifier) @class_name)
 """
-is_root = true
+description = "Matches a Dart class definition by name."
 
-# Scope for top-level declarations (functions, classes, etc.)
+# Method Scope: Matches method declarations (functions within classes)
 [[scopes]]
-name = "TopLevelDeclaration"
-query = """
-(declaration) @declaration
+name = "method"
+pattern = """
+(method_signature
+  (function_signature
+    name: (identifier) @method_name)
+)
 """
-is_root = false
+description = "Matches a Dart method declaration inside a class."
 
-# Scope for Dart classes
+# Function Scope: Matches standalone function declarations
 [[scopes]]
-name = "Class"
-query = """
-(class_declaration
-  name: (identifier) @class_name
-) @class
+name = "function"
+pattern = """
+(function_signature
+  name: (identifier) @function_name)
 """
-is_root = false
+description = "Matches standalone Dart function declarations."
 
-# Scope for methods inside classes
+# Block Scope: Matches code blocks such as if-statements or function bodies
 [[scopes]]
-name = "Method"
-query = """
-(method_declaration
-  name: (identifier) @method_name
-) @method
+name = "block"
+pattern = """
+(block)
 """
-is_root = false
+description = "Matches a block of Dart code (e.g., if/else blocks, function bodies)."
 
-# Scope for top-level functions
+# Enum Scope: Matches enum declarations
 [[scopes]]
-name = "Function"
-query = """
-(function_declaration
-  name: (identifier) @function_name
-) @function
+name = "enum"
+pattern = """
+(enum_declaration
+  name: (identifier) @enum_name)
 """
-is_root = false
+description = "Matches an enum declaration by name."
 
-# Scope for blocks (e.g., inside a method or function)
+# If-statement Scope: Matches if-statements
 [[scopes]]
-name = "Block"
-query = """
-(block) @block
+name = "if_statement"
+pattern = """
+(if_statement
+  condition: (parenthesized_expression) @condition
+)
 """
-is_root = false
-
-# Scope for if-statements (conditionals)
-[[scopes]]
-name = "IfStatement"
-query = """
-(if_statement) @if_statement
-"""
-is_root = false
-
-# Scope for variable declarations
-[[scopes]]
-name = "VariableDeclaration"
-query = """
-(variable_declaration) @variable_declaration
-"""
-is_root = false
+description = "Matches an if-statement with its condition."
