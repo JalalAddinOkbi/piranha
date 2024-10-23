@@ -80,14 +80,12 @@ def test_insert_field_add_import():
         replace="""{
   private List<String> names;\n @class_members
 }""",
-        filters= set([
-            Filter(
-                not_contains = ["""(
+        filters={Filter(
+            not_contains=["""(
                     (field_declaration (variable_declarator name:(_) @name )) @field
                     (#eq? @name "names")
                 )"""]
-            )
-        ]),
+        )},
     )
 
     add_import = Rule (
@@ -97,16 +95,14 @@ def test_insert_field_add_import():
         replace="""@pkg_dcl
 import java.util.List;
 """,
-        filters= set([
-            Filter(
-                enclosing_node= "(program ) @prgrm",
-                not_contains = ["""
+        filters={Filter(
+            enclosing_node="(program ) @prgrm",
+            not_contains=["""
                 (
                     (import_declaration (scoped_identifier) @type ) @import
                     (#eq? @type "java.util.List")
                 )"""]
-            )
-        ]),
+        )},
         is_seed_rule= False
     )
 
@@ -146,16 +142,14 @@ def test_delete_unused_field():
         """,
         replace_node="decl",
         replace="",
-        filters= set([
-            Filter(
-                enclosing_node= "(class_declaration ) @c_cd",
-                contains = """(
+        filters={Filter(
+            enclosing_node="(class_declaration ) @c_cd",
+            contains="""(
                     (identifier) @name
                     (#eq? @name "@id_name")
                 )""",
-                at_most= 1
-            )
-        ]),
+            at_most=1
+        )},
     )
 
     rule_graph = RuleGraph(
@@ -188,11 +182,11 @@ def test_incorrect_import():
     )
 
 
-    with pytest.raises(BaseException, match = "Incorrect Rule Graph - Cannot parse") as e:
-        rule_graph = RuleGraph(
-            rules= [delete_unused_field],
-            edges = []
-            )
+    with pytest.raises(BaseException, match = "Incorrect Rule Graph - Cannot parse"):
+        RuleGraph(
+            rules=[delete_unused_field],
+            edges=[]
+        )
 
 def is_as_expected(path_to_scenario, output_summary):
     expected_output = join(path_to_scenario, "expected")
@@ -231,7 +225,7 @@ def _is_readable(input_str: str) -> bool:
     Returns:
         bool: is human readable
     """
-    return not any(re.findall(r"\<(.*) object at (.*)\>", input_str))
+    return not any(re.findall(r"<(.*) object at (.*)>", input_str))
 
 def test_java_toplevel_method_decl():
     """method_declaration for Java should be accepted as top level node.
@@ -279,6 +273,8 @@ def test_dart_clean_up_enums():
     assert len(output_summaries) == 1
     expected_paths = [
         "test-resources/dart/delete_enums/input/enum_constsnt.dart",
+        "test-resources/dart/delete_enums/input/whole_enum.dart",
+
     ]
     assert all([o.path in expected_paths for o in output_summaries])
     summary: PiranhaOutputSummary
