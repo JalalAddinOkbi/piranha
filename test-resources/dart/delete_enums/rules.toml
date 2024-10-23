@@ -1,0 +1,23 @@
+[[rules]]
+name = "delete_enum_constant"
+query = """
+    (
+    ((enum_constant name : (_) @n) @ec)
+    (#eq? @n  "@stale_flag_name")
+    )
+    """
+replace_node = "ec"
+replace = ""
+holes = ["stale_flag_name"]
+#groups = ["delete_enum_entry"]
+
+[[rules]]
+name = "delete_empty_enum_declaration"
+query = """
+(enum_declaration) @enum_declaration"""
+replace = ""
+replace_node = "enum_declaration"
+is_seed_rule = false
+[[rules.filters]]
+enclosing_node = "(enum_declaration) @ed"
+not_contains = ["(enum_constant) @ec"]
