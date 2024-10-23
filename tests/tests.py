@@ -261,23 +261,24 @@ def _java_toplevel_mdecl_matches_anything(code_snippet: str) -> bool:
             assert False, f"Java method_declaration as top level node should not raise an error:\n{code_snippet}"
 
 
-def test_dart_remove_if():
+def test_dart_clean_up_enums():
     args = PiranhaArguments(
-        path_to_configurations= "test-resources/dart/delete_unused_if/rules.toml",
+        path_to_configurations="test-resources/dart/delete_enums/rules.toml",
         language="dart",
         substitutions={
-            "flag_name": "flag",
-            "flag_value": "true",
+            "stale_flag_name" : "feature3"
         },
-        paths_to_codebase=["test-resources/dart/delete_unused_if/input"],
-        dry_run=False,
+        paths_to_codebase=["test-resources/dart/delete_enums/input"],
+        dry_run=True,
     )
 
     output_summaries = execute_piranha(args)
 
+    print(output_summaries)
+
     assert len(output_summaries) == 1
     expected_paths = [
-        "test-resources/dart/delete_unused_if/expected/testß.dart",
+        "test-resources/dart/delete_enums/input/enum_constsnt.dart",
     ]
     assert all([o.path in expected_paths for o in output_summaries])
     summary: PiranhaOutputSummary
@@ -289,5 +290,5 @@ def test_dart_remove_if():
             assert rewrite.p_match.matched_string and rewrite.p_match.matches
 
     assert is_as_expected(
-        "test-resources/dart/delete_unused_if", output_summaries
+        "test-resources/dart/delete_enums", output_summaries
     )
