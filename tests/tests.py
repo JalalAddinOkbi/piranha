@@ -263,21 +263,21 @@ def _java_toplevel_mdecl_matches_anything(code_snippet: str) -> bool:
 
 def test_dart_remove_if():
     args = PiranhaArguments(
-        path_to_configurations="cleanup_rules/dart/rules.toml",
+        path_to_configurations= "test-resources/dart/delete_unused_if/rules.toml",
         language="dart",
         substitutions={
             "flag_name": "flag",
             "flag_value": "true",
         },
-        paths_to_codebase=["test-resources/dart/input/test_input.dart"],
+        paths_to_codebase=["test-resources/dart/delete_unused_if/input"],
         dry_run=False,
     )
 
     output_summaries = execute_piranha(args)
 
-    assert len(output_summaries) == 2
+    assert len(output_summaries) == 1
     expected_paths = [
-        "test-resources/dart/expected/test_expected.dart",
+        "test-resources/dart/delete_unused_if/expected/testß.dart",
     ]
     assert all([o.path in expected_paths for o in output_summaries])
     summary: PiranhaOutputSummary
@@ -289,5 +289,5 @@ def test_dart_remove_if():
             assert rewrite.p_match.matched_string and rewrite.p_match.matches
 
     assert is_as_expected(
-        "test-resources/dart/expected/test_expected.dart", output_summaries
+        "test-resources/dart/delete_unused_if", output_summaries
     )
