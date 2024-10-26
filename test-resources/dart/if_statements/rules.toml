@@ -1,0 +1,36 @@
+[[rules]]
+groups = ["if_cleanup"]
+name = "simplify_if_statement_true"
+query = """
+(
+    (if_statement
+        condition : (condition (true))
+        consequence : ((statement) @consequence))
+@if_statement)
+"""
+replace = "@consequence"
+replace_node = "if_statement"
+is_seed_rule = false
+
+# Before :
+#  if (true) { doSomething(); } else { doSomethingElse();}
+# After :
+#  { doSomethingElse(); }
+#
+# Before :
+#  if (true) { doSomething(); }
+# After :
+#
+[[rules]]
+groups = ["if_cleanup"]
+name = "simplify_if_statement_false"
+query = """
+(
+    (if_statement
+        condition : (condition (false))
+        consequence : ((statement) @consequence)
+        alternative : ((_) @alternative) ?)
+@if_statement)"""
+replace = "@alternative"
+replace_node = "if_statement"
+is_seed_rule = false

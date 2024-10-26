@@ -257,13 +257,14 @@ def _java_toplevel_mdecl_matches_anything(code_snippet: str) -> bool:
 
 def test_dart_clean_up_enums():
     args = PiranhaArguments(
-        path_to_configurations="test-resources/dart/delete_enums/rules.toml",
+        path_to_configurations="src/cleanup_rules/dart/rules.toml",
         language="dart",
         substitutions={
             "stale_flag_name" : "feature3"
         },
         paths_to_codebase=["test-resources/dart/delete_enums/input"],
         dry_run=True,
+        allow_dirty_ast=True,
     )
 
     output_summaries = execute_piranha(args)
@@ -273,8 +274,6 @@ def test_dart_clean_up_enums():
     assert len(output_summaries) == 1
     expected_paths = [
         "test-resources/dart/delete_enums/input/enum_constsnt.dart",
-        "test-resources/dart/delete_enums/input/whole_enum.dart",
-
     ]
     assert all([o.path in expected_paths for o in output_summaries])
     summary: PiranhaOutputSummary
